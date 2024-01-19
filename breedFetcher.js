@@ -7,31 +7,34 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const breedFetcher = (url, /*dest*/) => {
-  request(url, (error, response, body) => {
+const fetchBreedDescription = function(breedName, callback) {
+
+  const url = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`;
+  request(url, (error, body) => {
+  // console.log(body);
+  // console.log(typeof body);
+
     if (error) {
-      console.log('error', error)
-      rl.close();
+      callback(`Failed to request details: ${error}`,null);
     }
+
     const data = JSON.parse(body);
-    console.log(data);
-    console.log(typeof data);
-    // fs.access(dest, fs.F_OK, (err) => {
-    //   if (err) {
-    //     fs.writeFile(dest, body, (err) => {
-    //       if (err) {
-    //         console.error(err);
-    //       };
-    //       console.log(`Downloaded and saved to ${dest}`);
-    //     });
-    //     rl.close();
-    //   }
-    // });
+    // console.log(data);
+
+    const breed = data[0];
+    if (breed) {
+      callback(null,breed.description);
+    } else {
+      callback(`Failed to find breed ${breedName}`,null);
+    }
   });
+
 };
 
-rl.question("Enter URL: ", (pageUrl) => {
-  // rl.question("Save to: ", (destPath) => {
-    breedFetcher(pageUrl/*, destPath*/);
-  });
-//;
+module.exports = { fetchBreedDescription };
+
+// rl.question("Enter breed", (breed) => {
+//   // rl.question("Save to: ", (destPath) => {
+//     fetchBreedDescription(pageUrl/*, destPath*/);
+//   });
+// //;
